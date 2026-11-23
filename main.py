@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 apihelper.CONNECT_TIMEOUT = 30
 apihelper.READ_TIMEOUT = 60
-apihelper.RETRY_ON_ERROR = True
+apihelper.RETRY_ON_ERROR = False
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -46,30 +46,14 @@ bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=["start"])
 def start(message):
-
     keyboard = InlineKeyboardMarkup(row_width=1)
 
     keyboard.add(
-        InlineKeyboardButton(
-            "⚽ ТАМОШОИ ПАХШҲО",
-            callback_data="live"
-        ),
-        InlineKeyboardButton(
-            "📅 ҶАДВАЛИ БОЗИҲО",
-            callback_data="schedule"
-        ),
-        InlineKeyboardButton(
-            "📖 ЧӢ ТАВР ТАМОШО КУНЕМ?",
-            callback_data="help"
-        ),
-        InlineKeyboardButton(
-            "🌐 ЗАБОН",
-            callback_data="language"
-        ),
-        InlineKeyboardButton(
-            "📤 МУБОДИЛА",
-            url="https://t.me/Liveballtvi_bot"
-        )
+        InlineKeyboardButton("⚽ ТАМОШОИ ПАХШҲО", callback_data="live"),
+        InlineKeyboardButton("📅 ҶАДВАЛИ БОЗИҲО", callback_data="schedule"),
+        InlineKeyboardButton("📖 ЧӢ ТАВР ТАМОШО КУНЕМ?", callback_data="help"),
+        InlineKeyboardButton("🌐 ЗАБОН", callback_data="language"),
+        InlineKeyboardButton("📤 МУБОДИЛА", url="https://t.me/Liveballtvi_bot")
     )
 
     bot.send_message(
@@ -89,12 +73,10 @@ def start(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callbacks(call):
-
     try:
         bot.answer_callback_query(call.id)
 
         if call.data == "live":
-
             bot.send_message(
                 call.message.chat.id,
                 "⚽ РӮЙХАТИ ПАХШҲО\n\n"
@@ -102,7 +84,6 @@ def callbacks(call):
             )
 
         elif call.data == "schedule":
-
             bot.send_message(
                 call.message.chat.id,
                 "📅 ҶАДВАЛИ БОЗИҲО\n\n"
@@ -110,7 +91,6 @@ def callbacks(call):
             )
 
         elif call.data == "help":
-
             bot.send_message(
                 call.message.chat.id,
                 "📖 ДАСТУРАМАЛ\n\n"
@@ -120,7 +100,6 @@ def callbacks(call):
             )
 
         elif call.data == "language":
-
             bot.send_message(
                 call.message.chat.id,
                 "🌐 Забони бот: Тоҷикӣ"
@@ -139,7 +118,6 @@ def callbacks(call):
     func=lambda message: True
 )
 def other_messages(message):
-
     bot.send_message(
         message.chat.id,
         "⚽ Барои истифодаи LIVEBALL TV "
@@ -148,37 +126,56 @@ def other_messages(message):
 
 
 # =========================
-# START BOT WITH RETRY
+# START BOT
 # =========================
 
 def run_bot():
-
     logger.info("LIVEBALL TV starting...")
 
     while True:
-
         try:
-
             logger.info("Connecting to Telegram...")
 
-            bot.infinity_polling(
+            # Хориҷ кардани webhook-и кӯҳна
+            bot.delete_webhook(drop_pending_updates=False)
+
+            # Танҳо як polling
+            bot.polling(
+                non_stop=False,
+                interval=1,
                 timeout=30,
                 long_polling_timeout=25,
-                skip_pending=True,
-                restart_on_change=False
+                skip_pending=False
             )
 
-        except requests.exceptions.RequestException:
+        except telebot.apihelper.ApiTelegramException as e:
+            retry_after = 30
 
+            try:
+                data = e.result_json
+                retry_after = data.get(
+                    "parameters", {}
+                ).get("retry_after", 30)
+            except Exception:
+                pass
+
+            wait_time = int(retry_after) + 5
+
+            logger.error("Telegram API error: %s", e)
+            logger.warning(
+                "Telegram талаб мекунад %s сония интизор шавем.",
+                wait_time
+            )
+
+            time.sleep(wait_time)
+
+        except requests.exceptions.RequestException:
             logger.exception("Network connection error")
-            logger.info("Retrying in 15 seconds...")
-            time.sleep(15)
+            time.sleep(30)
 
         except Exception:
-
             logger.exception("Bot error")
-            logger.info("Restarting in 15 seconds...")
-            time.sleep(15)
+            time.sleep(30)
 
 
 # =========================
@@ -186,5 +183,4 @@ def run_bot():
 # =========================
 
 if __name__ == "__main__":
-
     run_bot()
