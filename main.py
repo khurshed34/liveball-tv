@@ -6,16 +6,25 @@ import requests
 import telebot
 
 from telebot import apihelper
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    WebAppInfo
+)
 
 # =========================
 # CONFIG
 # =========================
 
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("BOT_TOKEN", "").strip()
+WEB_APP_URL = os.getenv("WEB_APP_URL", "").strip()
 
 if not TOKEN:
     raise ValueError("BOT_TOKEN дар GitHub Secrets ёфт нашуд!")
+
+# Танҳо суроғаи HTTPS қабул мешавад
+if WEB_APP_URL and not WEB_APP_URL.startswith("https://"):
+    raise ValueError("WEB_APP_URL бояд бо https:// сар шавад!")
 
 # =========================
 # LOGGING
@@ -35,19 +44,30 @@ apihelper.RETRY_ON_ERROR = False
 bot = telebot.TeleBot(TOKEN)
 
 # =========================
-# START
+# MAIN KEYBOARD
 # =========================
 
-@bot.message_handler(commands=["start"])
-def start(message):
+def create_keyboard():
 
     keyboard = InlineKeyboardMarkup(row_width=1)
 
+    # Агар суроғаи сайт бошад, Web App мекушояд
+    if WEB_APP_URL:
+        keyboard.add(
+            InlineKeyboardButton(
+                "⚽ ТАМОШОИ ПАХШҲО",
+                web_app=WebAppInfo(url=WEB_APP_URL)
+            )
+        )
+    else:
+        keyboard.add(
+            InlineKeyboardButton(
+                "⚽ ТАМОШОИ ПАХШҲО",
+                callback_data="live"
+            )
+        )
+
     keyboard.add(
-        InlineKeyboardButton(
-            "⚽ ТАМОШОИ ПАХШҲО",
-            callback_data="live"
-        ),
         InlineKeyboardButton(
             "📅 ҶАДВАЛИ БОЗИҲО",
             callback_data="schedule"
@@ -66,15 +86,29 @@ def start(message):
         )
     )
 
-    bot.send_message(
-        message.chat.id,
-        "⚽ ХУШ ОМАДЕД БА LIVEBALL TV!\n\n"
-        "📺 Пахши мустақими варзишӣ\n"
-        "🏆 Футбол ва мусобиқаҳо\n"
-        "🔥 Бозиҳои LIVE\n\n"
-        "Барои идома тугмаро интихоб кунед:",
-        reply_markup=keyboard
-    )
+    return keyboard
+
+
+# =========================
+# START
+# =========================
+
+@bot.message_handler(commands=["start"])
+def start(message):
+
+    try:
+        bot.send_message(
+            message.chat.id,
+            "⚽ ХУШ ОМАДЕД БА LIVEBALL TV!\n\n"
+            "📺 Пахши мустақими варзишӣ\n"
+            "🏆 Футбол ва мусобиқаҳо\n"
+            "🔥 Бозиҳои LIVE\n\n"
+            "Барои идома тугмаро интихоб кунед:",
+            reply_markup=create_keyboard()
+        )
+
+    except Exception:
+        logger.exception("Start error")
 
 
 # =========================
@@ -88,32 +122,50 @@ def callbacks(call):
         bot.answer_callback_query(call.id)
 
         if call.data == "live":
-            text = (
-                "⚽ РӮЙХАТИ ПАХШҲО\n\n"
-                "Ҳоло рӯйхати пахшҳо омода карда мешавад."
-            )
+
+            if WEB_APP_URL:
+                text = (
+                    "⚽ Барои тамошои пахшҳо "
+                    "тугмаи менюро истифода баред."
+                )
+            else:
+                text = (
+                    "⚽ САҲИФАИ LIVEBALL TV\n\n"
+                    "Суроғаи сайт ҳоло ба бот пайваст нашудааст.\n"
+                    "Админ бояд Secret-и WEB_APP_URL-ро "
+                    "дар GitHub илова кунад."
+                )
 
         elif call.data == "schedule":
+
             text = (
                 "📅 ҶАДВАЛИ БОЗИҲО\n\n"
                 "Ҷадвали бозиҳо ҳоло омода карда мешавад."
             )
 
         elif call.data == "help":
+
             text = (
                 "📖 ДАСТУРАМАЛ\n\n"
-                "1. Ба пахшҳо ворид шавед.\n"
+                "1. Ба бахши пахшҳо ворид шавед.\n"
                 "2. Бозии дилхоҳро интихоб кунед.\n"
-                "3. Пахши дастрасро тамошо кунед."
+                "3. Агар пахши дастрас бошад, онро тамошо кунед.\n\n"
+                "⚠️ Дастрасии пахш аз мавҷудияти манбаи "
+                "расмии видео вобаста аст."
             )
 
         elif call.data == "language":
+
             text = "🌐 Забони бот: Тоҷикӣ"
 
         else:
             text = "Ин тугма дастрас нест."
 
-        bot.send_message(call.message.chat.id, text)
+        bot.send_message(
+            call.message.chat.id,
+            text,
+            reply_markup=create_keyboard()
+        )
 
     except Exception:
         logger.exception("Callback error")
@@ -129,11 +181,16 @@ def callbacks(call):
 )
 def other_messages(message):
 
-    bot.send_message(
-        message.chat.id,
-        "⚽ Барои истифодаи LIVEBALL TV "
-        "фармони /start-ро пахш кунед."
-    )
+    try:
+        bot.send_message(
+            message.chat.id,
+            "⚽ Барои истифодаи LIVEBALL TV "
+            "фармони /start-ро пахш кунед.",
+            reply_markup=create_keyboard()
+        )
+
+    except Exception:
+        logger.exception("Message error")
 
 
 # =========================
@@ -160,6 +217,7 @@ def get_retry_time(error):
 def run_bot():
 
     logger.info("LIVEBALL TV starting...")
+    logger.info("Web App configured: %s", bool(WEB_APP_URL))
 
     while True:
 
@@ -168,10 +226,10 @@ def run_bot():
 
             bot.polling(
                 non_stop=False,
-                interval=2,
+                interval=3,
                 timeout=30,
                 long_polling_timeout=25,
-                skip_pending=False
+                skip_pending=True
             )
 
         except telebot.apihelper.ApiTelegramException as error:
