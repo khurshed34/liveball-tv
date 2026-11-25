@@ -28,4 +28,5 @@ jobs:
       - name: Start bot
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
         run: python main.py
