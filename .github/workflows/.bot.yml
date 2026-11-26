@@ -32,7 +32,7 @@ jobs:
 
       - name: Start bot
         env:
-          BOT_TOKEN: ${{ secrets.LIVEBALL_TOKEN }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
           FOOTBALL_API_KEY: ${{ secrets.FOOTBALL_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
