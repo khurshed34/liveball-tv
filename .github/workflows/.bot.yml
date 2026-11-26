@@ -3,6 +3,11 @@ name: LIVEBALL TV
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+permissions:
+  contents: write
 
 concurrency:
   group: liveball-bot
@@ -30,4 +35,6 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
           FOOTBALL_API_KEY: ${{ secrets.FOOTBALL_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: python main.py
