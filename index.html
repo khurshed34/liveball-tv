@@ -2,287 +2,371 @@
 <!doctype html>
 <html lang="tg">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#081009">
-  <title>LIVEBALL TV</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080e09">
+<title>LIVEBALL TV</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <style>
-    :root{
-      color-scheme:dark;
-      --bg:#080e09;
-      --panel:#111a12;
-      --line:#253126;
-      --green:#55df35;
-      --muted:#9eaa9e
-    }
-
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      background:radial-gradient(ellipse at 50% 15%,#173019 0,#080e09 48%);
-      color:#f3f7f2;
-      font-family:Arial,sans-serif
-    }
-
-    .wrap{max-width:760px;margin:auto;padding:18px 14px 36px}
-
-    header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin:4px 2px 20px
-    }
-
-    .brand{font-size:24px;font-weight:900;letter-spacing:.5px}
-    .live{color:var(--green);font-weight:800}
-    .dot{
-      display:inline-block;
-      width:10px;height:10px;
-      border-radius:50%;
-      background:var(--green);
-      box-shadow:0 0 14px var(--green);
-      margin-right:7px
-    }
-
-    .tabs{display:flex;gap:10px;margin-bottom:20px}
-
-    .tab{
-      border:1px solid var(--line);
-      border-radius:30px;
-      padding:10px 20px;
-      background:#111811;
-      color:#aeb9ad;
-      font-weight:700
-    }
-
-    .tab.active{
-      background:var(--green);
-      color:#071006;
-      border-color:var(--green)
-    }
-
-    .player{
-      border:1px solid var(--line);
-      background:#101910;
-      border-radius:20px;
-      overflow:hidden;
-      margin-bottom:20px
-    }
-
-    .screen{
-      aspect-ratio:16/9;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:20px;
-      background:linear-gradient(145deg,#152318,#080d09)
-    }
-
-    .screen video{
-      width:100%;
-      height:100%;
-      display:none;
-      background:#000
-    }
-
-    .placeholder .tv{font-size:42px;margin-bottom:8px}
-    .placeholder strong{display:block;font-size:17px;margin-bottom:7px}
-
-    .placeholder p{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.5;
-      margin:0
-    }
-
-    .player-foot{padding:12px 15px;color:var(--muted);font-size:13px}
-
-    .section-title{
-      font-size:13px;
-      letter-spacing:3px;
-      color:var(--green);
-      font-weight:900;
-      margin:24px 4px 12px
-    }
-
-    .match{
-      background:rgba(17,26,18,.95);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      margin-bottom:12px
-    }
-
-    .match-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:14px
-    }
-
-    .live-tag{
-      background:#f0444d;
-      color:#fff;
-      border-radius:8px;
-      padding:7px 11px;
-      font-size:12px;
-      font-weight:900
-    }
-
-    .sport{color:var(--muted);font-size:12px;letter-spacing:1px}
-
-    .teams{
-      display:grid;
-      grid-template-columns:1fr auto 1fr;
-      gap:8px;
-      align-items:center
-    }
-
-    .team{font-weight:800;font-size:15px;line-height:1.3}
-    .team:last-child{text-align:right}
-
-    .score{
-      text-align:center;
-      color:var(--green);
-      font-size:25px;
-      font-weight:900;
-      white-space:nowrap
-    }
-
-    .status{text-align:center;color:var(--muted);font-size:11px;margin-top:3px}
-
-    .empty{
-      text-align:center;
-      padding:24px 12px;
-      color:var(--muted);
-      border:1px dashed #344235;
-      border-radius:16px;
-      line-height:1.6
-    }
-
-    .liveball-link{
-      display:block;
-      text-align:center;
-      background:var(--green);
-      color:#071006;
-      padding:16px;
-      border-radius:14px;
-      font-weight:900;
-      text-decoration:none;
-      margin-top:18px;
-      transition:.2s
-    }
-
-    .liveball-link:active{transform:scale(.98)}
-
-    .note{
-      color:#829082;
-      font-size:11px;
-      text-align:center;
-      margin-top:24px;
-      line-height:1.5
-    }
-  </style>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#080e09;
+  --panel:#111a12;
+  --line:#253126;
+  --green:#55df35;
+  --muted:#9eaa9e;
+  --red:#f0444d
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(ellipse at 50% 10%,#173019 0,#080e09 55%);
+  color:#f3f7f2;
+  font-family:Arial,sans-serif
+}
+.wrap{max-width:760px;margin:auto;padding:18px 14px 36px}
+header{
+  display:flex;justify-content:space-between;
+  align-items:center;margin:5px 2px 22px
+}
+.brand{font-size:23px;font-weight:900}
+.live{color:var(--green);font-weight:900}
+.dot{
+  display:inline-block;width:9px;height:9px;
+  border-radius:50%;background:var(--green);
+  box-shadow:0 0 12px var(--green);margin-right:6px
+}
+.tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:18px}
+.tab{
+  border:1px solid var(--line);border-radius:25px;
+  padding:10px 16px;background:#111811;
+  color:#aeb9ad;font-weight:800;white-space:nowrap
+}
+.tab.active{background:var(--green);color:#071006;border-color:var(--green)}
+.player{
+  border:1px solid var(--line);background:#101910;
+  border-radius:20px;overflow:hidden;margin-bottom:22px
+}
+.screen{
+  aspect-ratio:16/9;display:flex;align-items:center;
+  justify-content:center;text-align:center;padding:20px;
+  background:linear-gradient(145deg,#152318,#080d09)
+}
+.placeholder .tv{font-size:43px;margin-bottom:8px}
+.placeholder strong{display:block;font-size:17px;margin-bottom:8px}
+.placeholder p{color:var(--muted);font-size:13px;line-height:1.5}
+.screen video{width:100%;height:100%;display:none;background:#000}
+.player-foot{padding:13px;color:var(--muted);font-size:13px}
+.section-title{
+  font-size:13px;letter-spacing:2px;color:var(--green);
+  font-weight:900;margin:23px 4px 13px
+}
+.match{
+  background:rgba(17,26,18,.96);border:1px solid var(--line);
+  border-radius:17px;padding:14px;margin-bottom:11px
+}
+.match-top{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:8px;margin-bottom:15px
+}
+.league{
+  display:flex;align-items:center;gap:7px;
+  color:#c1cbbf;font-size:12px;font-weight:700
+}
+.league img{width:21px;height:21px;object-fit:contain}
+.live-tag{
+  background:var(--red);color:white;border-radius:7px;
+  padding:6px 9px;font-size:11px;font-weight:900
+}
+.status-tag{
+  color:var(--green);font-size:11px;font-weight:800
+}
+.teams{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  gap:7px;align-items:center
+}
+.team{display:flex;align-items:center;gap:8px;min-width:0}
+.team:last-child{flex-direction:row-reverse;text-align:right}
+.team img{width:31px;height:31px;object-fit:contain;flex-shrink:0}
+.team-name{font-size:13px;font-weight:800;line-height:1.35;overflow-wrap:anywhere}
+.score{text-align:center;color:var(--green);font-size:24px;font-weight:900;white-space:nowrap}
+.status{text-align:center;color:var(--muted);font-size:11px;margin-top:5px}
+.empty{
+  text-align:center;padding:24px 12px;color:var(--muted);
+  border:1px dashed #344235;border-radius:16px;line-height:1.6;
+  font-size:13px
+}
+.info{
+  color:var(--muted);font-size:11px;
+  text-align:center;margin:12px 0
+}
+.liveball-link{
+  display:block;text-align:center;background:var(--green);
+  color:#071006;padding:16px;border-radius:14px;
+  font-weight:900;text-decoration:none;margin-top:20px
+}
+.note{
+  color:#829082;font-size:11px;text-align:center;
+  margin-top:23px;line-height:1.6
+}
+.refresh{
+  display:block;margin:12px auto;border:1px solid var(--line);
+  border-radius:20px;background:#142016;color:var(--green);
+  padding:9px 17px;font-weight:800
+}
+</style>
 </head>
 
 <body>
-  <main class="wrap">
+<main class="wrap">
 
-    <header>
-      <div class="brand">⚽ LIVEBALL TV</div>
-      <div class="live"><span class="dot"></span>LIVE</div>
-    </header>
+<header>
+  <div class="brand">⚽ LIVEBALL TV</div>
+  <div class="live"><span class="dot"></span>LIVE</div>
+</header>
 
-    <nav class="tabs">
-      <button class="tab active" id="allTab" onclick="showTab('all')">Ҳама</button>
-      <button class="tab" id="footballTab" onclick="showTab('football')">Футбол</button>
-    </nav>
+<nav class="tabs">
+  <button class="tab active" onclick="setFilter('all',this)">Ҳама</button>
+  <button class="tab" onclick="setFilter('live',this)">🔴 Зинда</button>
+  <button class="tab" onclick="setFilter('upcoming',this)">📅 Оянда</button>
+  <button class="tab" onclick="setFilter('finished',this)">🏁 Натиҷаҳо</button>
+</nav>
 
-    <section class="player">
-      <div class="screen">
+<section class="player">
+  <div class="screen">
+    <div class="placeholder" id="placeholder">
+      <div class="tv">📺</div>
+      <strong>ПАХШИ МУСТАҚИМ</strong>
+      <p>
+        Бозиро интихоб кунед.<br>
+        Видео танҳо аз манбаи расмӣ ва иҷозатдодашуда дастрас мешавад.
+      </p>
+    </div>
+    <video id="video" controls playsinline></video>
+  </div>
+  <div class="player-foot" id="playerTitle">
+    Пахш интихоб нашудааст
+  </div>
+</section>
 
-        <div class="placeholder" id="placeholder">
-          <div class="tv">📺</div>
-          <strong>ПАХШИ МУСТАҚИМ</strong>
-          <p>
-            Бозиро интихоб кунед.
-            Видео танҳо вақте намоиш дода мешавад,
-            ки манбаи расмӣ ва иҷозатдодашуда дастрас бошад.
-          </p>
-        </div>
+<div class="section-title" id="listTitle">⚽ ҲАМАИ БОЗИҲО</div>
 
-        <video id="video" controls playsinline></video>
+<section id="matches">
+  <div class="empty">⏳ Маълумот бор шуда истодааст...</div>
+</section>
 
+<div class="info" id="updated">Маълумот санҷида мешавад...</div>
+
+<button class="refresh" onclick="loadMatches(true)">
+  ↻ НАВСОЗӢ
+</button>
+
+<a class="liveball-link"
+ href="https://liveball.sx/"
+ target="_blank" rel="noopener noreferrer">
+ 🌐 БОЗИҲО ДАР LIVEBALL
+</a>
+
+<p class="note">
+ LIVEBALL TV • Натиҷаҳо аз API-Football гирифта мешаванд.
+ Видео танҳо аз манбаъҳои расмӣ ва иҷозатдодашуда.
+</p>
+
+</main>
+
+<script>
+const tg = window.Telegram && window.Telegram.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+// Суроғаи файли маълумоти футбол
+const DATA_URL =
+ "https://khurshed34.github.io/liveball-tv/matches.json";
+
+let fixtures = [];
+let currentFilter = "all";
+
+function setFilter(filter,button){
+  currentFilter=filter;
+
+  document.querySelectorAll(".tab").forEach(b=>{
+    b.classList.remove("active");
+  });
+
+  button.classList.add("active");
+  renderMatches();
+}
+
+function safe(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+function image(url,alt){
+  if(!url)return "";
+  return `<img src="${safe(url)}" alt="${safe(alt)}"
+    loading="lazy" onerror="this.style.display='none'">`;
+}
+
+function formatTime(date){
+  if(!date)return "";
+  const d=new Date(date);
+  if(isNaN(d.getTime()))return "";
+  return d.toLocaleString("tg-TJ",{
+    timeZone:"Asia/Dushanbe",
+    day:"2-digit",month:"2-digit",
+    hour:"2-digit",minute:"2-digit"
+  });
+}
+
+function statusLabel(match){
+  if(match.category==="live"){
+    return match.elapsed!=null
+      ? `${match.elapsed}'`
+      : "ЗИНДА";
+  }
+
+  if(match.category==="finished")return "АНҶОМ";
+
+  return formatTime(match.date);
+}
+
+function renderCard(m){
+  const isLive=m.category==="live";
+  const isFinished=m.category==="finished";
+
+  const score =
+    m.home_goals==null && m.away_goals==null
+      ? "VS"
+      : `${m.home_goals ?? 0} : ${m.away_goals ?? 0}`;
+
+  const leagueLogo=m.league_logo || m.country_flag;
+
+  return `
+  <article class="match">
+    <div class="match-top">
+      <div class="league">
+        ${image(leagueLogo,m.league)}
+        <span>${safe(m.country ? m.country+" • " : "")}${safe(m.league)}</span>
       </div>
-
-      <div class="player-foot" id="playerTitle">
-        Пахш интихоб нашудааст
-      </div>
-    </section>
-
-    <div class="section-title">БОЗИҲОИ ЗИНДА</div>
-
-    <section id="matches">
-      <div class="empty">
-        Ҳоло маълумоти бозии зинда пайваст нашудааст.
-        <br>
-        Барои дидани бозиҳо ба LiveBall гузаред.
-      </div>
-    </section>
-
-    <a
-      class="liveball-link"
-      href="https://liveball.sx/"
-      target="_blank"
-      rel="noopener noreferrer">
-      🌐 БОЗИҲО ДАР LIVEBALL
-    </a>
-
-    <p class="note">
-      LIVEBALL TV • Натиҷаҳо ва пахшҳо аз манбаъҳои воқеӣ
-      ва иҷозатдодашуда гирифта мешаванд.
-    </p>
-
-  </main>
-
-  <script>
-    const tg = window.Telegram && window.Telegram.WebApp;
-
-    if (tg) {
-      tg.ready();
-      tg.expand();
-    }
-
-    function showTab(which) {
-      document.getElementById('allTab')
-        .classList.toggle('active', which === 'all');
-
-      document.getElementById('footballTab')
-        .classList.toggle('active', which === 'football');
-    }
-
-    function playStream(url, title) {
-      if (!url || !/^https:\/\//i.test(url)) {
-        document.getElementById('playerTitle').textContent =
-          'Барои ин бозӣ пахши расмӣ дастрас нест.';
-        return;
+      ${isLive
+        ? '<span class="live-tag">● LIVE</span>'
+        : `<span class="status-tag">${safe(statusLabel(m))}</span>`
       }
+    </div>
 
-      const video = document.getElementById('video');
+    <div class="teams">
+      <div class="team">
+        ${image(m.home_logo,m.home)}
+        <span class="team-name">${safe(m.home)}</span>
+      </div>
 
-      video.src = url;
-      video.style.display = 'block';
+      <div>
+        <div class="score">${score}</div>
+        <div class="status">${safe(m.status_text || "")}</div>
+      </div>
 
-      document.getElementById('placeholder').style.display = 'none';
-      document.getElementById('playerTitle').textContent =
-        title || 'Пахши мустақим';
+      <div class="team">
+        ${image(m.away_logo,m.away)}
+        <span class="team-name">${safe(m.away)}</span>
+      </div>
+    </div>
+  </article>`;
+}
 
-      video.play().catch(() => {});
+function renderMatches(){
+  const container=document.getElementById("matches");
+  const title=document.getElementById("listTitle");
+
+  const titles={
+    all:"⚽ ҲАМАИ БОЗИҲО",
+    live:"🔴 БОЗИҲОИ ЗИНДА",
+    upcoming:"📅 БОЗИҲОИ ОЯНДА",
+    finished:"🏁 НАТИҶАҲОИ БОЗИҲО"
+  };
+
+  title.textContent=titles[currentFilter];
+
+  let list=fixtures.filter(m=>{
+    if(currentFilter==="all")return true;
+    return m.category===currentFilter;
+  });
+
+  if(currentFilter==="live"){
+    list.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+  }
+
+  if(!list.length){
+    container.innerHTML=`
+      <div class="empty">
+        ${currentFilter==="live"
+          ?"🔴 Ҳоло бозии зинда ёфт нашуд."
+          :currentFilter==="upcoming"
+          ?"📅 Бозии оянда ёфт нашуд."
+          :currentFilter==="finished"
+          ?"🏁 Ҳоло натиҷа дастрас нест."
+          :"⚽ Ҳоло ягон бозӣ ёфт нашуд."}
+        <br>Маълумот баъд аз навсозии API пайдо мешавад.
+      </div>`;
+    return;
+  }
+
+  container.innerHTML=list.map(renderCard).join("");
+}
+
+async function loadMatches(showMessage=false){
+  const container=document.getElementById("matches");
+  const updated=document.getElementById("updated");
+
+  if(showMessage){
+    updated.textContent="⏳ Навсозӣ...";
+  }
+
+  try{
+    const response=await fetch(
+      DATA_URL+"?t="+Date.now(),
+      {cache:"no-store"}
+    );
+
+    if(!response.ok){
+      throw new Error("HTTP "+response.status);
     }
-  </script>
+
+    const data=await response.json();
+
+    if(!Array.isArray(data.fixtures)){
+      throw new Error("Маълумоти fixtures ёфт нашуд");
+    }
+
+    fixtures=data.fixtures.filter(m=>
+      ["live","upcoming","finished"].includes(m.category)
+    );
+
+    renderMatches();
+
+    updated.textContent=
+      "✓ Навсозӣ: "+formatTime(data.updated_at)+
+      " • Бозиҳо: "+fixtures.length;
+
+  }catch(error){
+    console.error("LIVEBALL error:",error);
+
+    if(!fixtures.length){
+      container.innerHTML=`
+        <div class="empty">
+          ⚠️ Маълумоти бозиҳо дастрас нест.<br>
+          Файли matches.json ё API-ро санҷед.
+        </div>`;
+    }
+
+    updated.textContent="⚠️ Пайвастшавӣ ба маълумот муваққатан қатъ шуд.";
+  }
+}
+
+loadMatches();
+setInterval(()=>loadMatches(),30000);
+</script>
 </body>
 </html>
