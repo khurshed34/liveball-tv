@@ -184,7 +184,7 @@ def fetch_fixtures():
     }
 
     # Дирӯз то 6 рӯзи оянда
-    for offset in range(-1, 7):
+    for offset in range(-1, 2):
 
         match_date = today + timedelta(days=offset)
 
