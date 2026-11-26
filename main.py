@@ -21,7 +21,9 @@ TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEB_APP_URL = os.getenv("WEB_APP_URL", "").strip()
 FOOTBALL_API_KEY = os.getenv("FOOTBALL_API_KEY", "").strip()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "").strip()
-GITHUB_REPOSITORY = os.getenv("GITHUB_REPOSITORY", "khurshed34/liveball-tv").strip()
+GITHUB_REPOSITORY = os.getenv(
+    "GITHUB_REPOSITORY", "khurshed34/liveball-tv"
+).strip()
 BRANCH = os.getenv("GITHUB_REF_NAME", "main").strip() or "main"
 
 TIMEZONE = ZoneInfo("Asia/Dushanbe")
@@ -39,7 +41,6 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
 logger = logging.getLogger("LIVEBALL_TV")
 
 apihelper.CONNECT_TIMEOUT = 30
@@ -47,6 +48,7 @@ apihelper.READ_TIMEOUT = 60
 apihelper.RETRY_ON_ERROR = False
 
 bot = telebot.TeleBot(TOKEN)
+
 
 # =========================
 # TELEGRAM BUTTONS
@@ -103,7 +105,10 @@ def callbacks(call):
     bot.answer_callback_query(call.id)
 
     if call.data == "schedule":
-        text = "📅 Ҷадвал ва натиҷаҳо дар саҳифаи LIVEBALL TV нишон дода мешаванд."
+        text = (
+            "📅 Ҷадвал ва натиҷаҳо дар саҳифаи "
+            "LIVEBALL TV нишон дода мешаванд."
+        )
 
     elif call.data == "help":
         text = (
@@ -111,14 +116,18 @@ def callbacks(call):
             "1. Тугмаи ТАМОШОИ ПАХШҲО-ро пахш кунед.\n"
             "2. LIVE, ОЯНДА ё НАТИҶАҲО-ро интихоб кунед.\n"
             "3. Маълумот ба таври худкор нав мешавад.\n\n"
-            "Видео танҳо аз манбаи расмӣ ва иҷозатдодашуда дастрас мешавад."
+            "Видео танҳо аз манбаи расмӣ ва иҷозатдодашуда "
+            "дастрас мешавад."
         )
 
     elif call.data == "language":
         text = "🌐 Забони бот: Тоҷикӣ"
 
     else:
-        text = "Барои кушодани сайт тугмаи ТАМОШОИ ПАХШҲО-ро пахш кунед."
+        text = (
+            "Барои кушодани сайт тугмаи "
+            "ТАМОШОИ ПАХШҲО-ро пахш кунед."
+        )
 
     bot.send_message(
         call.message.chat.id,
@@ -141,8 +150,13 @@ def other_messages(message):
 # =========================
 
 def classify_status(status):
-    live = {"1H", "HT", "2H", "ET", "P", "LIVE", "INT", "BT"}
+    live = {
+        "1H", "HT", "2H", "ET", "P",
+        "LIVE", "INT", "BT"
+    }
+
     finished = {"FT", "AET", "PEN"}
+
     cancelled = {"PST", "CANC", "ABD", "AWD", "WO"}
 
     if status in live:
@@ -163,67 +177,84 @@ def fetch_fixtures():
         raise RuntimeError("FOOTBALL_API_KEY ёфт нашуд!")
 
     today = datetime.now(TIMEZONE).date()
+    all_fixtures = {}
 
-    response = requests.get(
-        API_URL,
-        headers={
-            "x-apisports-key": FOOTBALL_API_KEY
-        },
-        params={
-            "from": (today - timedelta(days=1)).isoformat(),
-            "to": (today + timedelta(days=6)).isoformat(),
-            "timezone": "Asia/Dushanbe"
-        },
-        timeout=45
+    headers = {
+        "x-apisports-key": FOOTBALL_API_KEY
+    }
+
+    # Дирӯз то 6 рӯзи оянда
+    for offset in range(-1, 7):
+
+        match_date = today + timedelta(days=offset)
+
+        logger.info(
+            "Loading fixtures for %s",
+            match_date.isoformat()
+        )
+
+        response = requests.get(
+            API_URL,
+            headers=headers,
+            params={
+                "date": match_date.isoformat(),
+                "timezone": "Asia/Dushanbe"
+            },
+            timeout=45
+        )
+
+        response.raise_for_status()
+        result = response.json()
+
+        if result.get("errors"):
+            raise RuntimeError(str(result["errors"]))
+
+        for item in result.get("response", []):
+
+            fixture = item.get("fixture", {})
+            league = item.get("league", {})
+            teams = item.get("teams", {})
+            goals = item.get("goals", {})
+            status = fixture.get("status", {})
+
+            home = teams.get("home", {})
+            away = teams.get("away", {})
+
+            short_status = status.get("short", "NS")
+            fixture_id = fixture.get("id")
+
+            if not fixture_id:
+                continue
+
+            all_fixtures[fixture_id] = {
+                "id": fixture_id,
+                "date": fixture.get("date"),
+                "timestamp": fixture.get("timestamp"),
+                "status": short_status,
+                "status_text": status.get("long", ""),
+                "elapsed": status.get("elapsed"),
+                "category": classify_status(short_status),
+
+                "league": league.get("name", "Мусобиқа"),
+                "country": league.get("country", ""),
+                "league_logo": league.get("logo", ""),
+                "country_flag": league.get("flag", ""),
+
+                "home": home.get("name", "Home"),
+                "away": away.get("name", "Away"),
+
+                "home_logo": home.get("logo", ""),
+                "away_logo": away.get("logo", ""),
+
+                "home_goals": goals.get("home"),
+                "away_goals": goals.get("away")
+            }
+
+    fixtures = list(all_fixtures.values())
+
+    fixtures.sort(
+        key=lambda x: x.get("timestamp") or 0
     )
-
-    response.raise_for_status()
-
-    result = response.json()
-
-    if result.get("errors"):
-        raise RuntimeError(str(result["errors"]))
-
-    fixtures = []
-
-    for item in result.get("response", []):
-
-        fixture = item.get("fixture", {})
-        league = item.get("league", {})
-        teams = item.get("teams", {})
-        goals = item.get("goals", {})
-        status = fixture.get("status", {})
-
-        home = teams.get("home", {})
-        away = teams.get("away", {})
-
-        short_status = status.get("short", "NS")
-
-        fixtures.append({
-            "id": fixture.get("id"),
-            "date": fixture.get("date"),
-            "timestamp": fixture.get("timestamp"),
-            "status": short_status,
-            "status_text": status.get("long", ""),
-            "elapsed": status.get("elapsed"),
-            "category": classify_status(short_status),
-
-            "league": league.get("name", "Мусобиқа"),
-            "country": league.get("country", ""),
-            "league_logo": league.get("logo", ""),
-            "country_flag": league.get("flag", ""),
-
-            "home": home.get("name", "Home"),
-            "away": away.get("name", "Away"),
-
-            "home_logo": home.get("logo", ""),
-            "away_logo": away.get("logo", ""),
-
-            "home_goals": goals.get("home"),
-            "away_goals": goals.get("away")
-        })
-
-    fixtures.sort(key=lambda x: x.get("timestamp") or 0)
 
     return {
         "updated_at": datetime.now(TIMEZONE).isoformat(),
@@ -308,7 +339,6 @@ def publish_json(data):
 # =========================
 
 def update_matches():
-
     data = fetch_fixtures()
     publish_json(data)
 
