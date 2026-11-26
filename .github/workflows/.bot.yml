@@ -1,4 +1,3 @@
-
 name: LIVEBALL TV
 
 on:
@@ -35,6 +34,6 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           WEB_APP_URL: ${{ secrets.WEB_APP_URL }}
           FOOTBALL_API_KEY: ${{ secrets.FOOTBALL_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python main.py
